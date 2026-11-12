@@ -1,14 +1,19 @@
 
-@file:Suppress("ALL")
+@file:Suppress("ALL", "package.mismatch", "kt.unusedParameter", "kt.usePropertyAccess")
 
 package com.KT_kt
 
+import android.R.drawable
 import android.app.Activity
+import android.app.AlertDialog
+import android.app.DatePickerDialog
 import android.app.Dialog
+import android.app.TimePickerDialog
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
+import android.icu.util.Calendar
 import android.media.SoundPool
 import android.net.Uri
 import android.os.*
@@ -20,6 +25,13 @@ import android.widget.*
 import android.widget.ListView
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
+import android.annotation.SuppressLint
+import android.content.res.ColorStateList
+import android.graphics.Paint
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.RippleDrawable
+import android.graphics.drawable.ShapeDrawable
+import android.graphics.drawable.shapes.RectShape
 // -------------------------
 // DP, SP AND PX
 // -------------------------
@@ -46,14 +58,6 @@ fun String.toUri(): Uri {
 fun ViewGroup.addViews(vararg views: View) {
     views.forEach { addView(it) }
 }
-
-object KtColor :Kt_Color()
-
-fun Context.KtVibrator(duration: Int) =
-Kt_Vibrator(this, duration)
-
-fun Context.KtVibrator(pattern: LongArray) =
-Kt_Vibrator(this, pattern)
 
 //---
 
@@ -93,14 +97,147 @@ fun Context.ktDialog(
     return Dialog(this).apply(block)
 }
 
-//---
-class KtShape(
-    block: KtShape.() -> Unit = {}
-) : GradientDrawable() {
+fun Context.ktDialog(
+    title: String = "",
+    message: String = "",
+    cancelable: Boolean = true,
+    block: AlertDialog.Builder.() -> Unit = {}
+): AlertDialog {
 
-    init {
-        apply(block)
+    return AlertDialog.Builder(this).apply {
+        if (title.isNotEmpty()) setTitle(title)
+        if (message.isNotEmpty()) setMessage(message)
+
+        setCancelable(cancelable)
+
+        block()
+    }.create()
+}
+
+fun Context.ktDateDialog(
+    year: Int,
+    month: Int,
+    day: Int,
+    block: DatePickerDialog.(
+        Int, Int, Int
+    ) -> Unit = { _, _, _ -> }
+): DatePickerDialog {
+
+    return DatePickerDialog(
+        this,
+        { _, y, m, d ->
+            // Selection callback
+        },
+        year,
+        month,
+        day
+    )
+}
+
+@SuppressLint("NewApi")
+fun Context.ktTimeDialog(
+    hour: Int = Calendar.getInstance().get(Calendar.HOUR_OF_DAY),
+    minute: Int = Calendar.getInstance().get(Calendar.MINUTE),
+    is24Hour: Boolean = true,
+    block: (hour: Int, minute: Int) -> Unit
+): TimePickerDialog {
+
+    return TimePickerDialog(
+        this,
+        { _, h, m ->
+            block(h, m)
+        },
+        hour,
+        minute,
+        is24Hour
+    )
+}
+
+fun Context.ktProgressDialog(
+    title: String = "Loading",
+    message: String = "Please wait...",
+    horizontal: Boolean = false,
+    cancelable: Boolean = false,
+    block: ProgressBar.() -> Unit = {}
+): AlertDialog {
+
+    val progress = ProgressBar(
+        this,
+        null,
+        if (horizontal) {
+            android.R.attr.progressBarStyleHorizontal
+        } else {
+            android.R.attr.progressBarStyle
+        }
+    ).apply {
+        if (horizontal) {
+            max = 100
+        }
+        block()
     }
+
+    val content = ktColumnLayout {
+        setPadding(32, 20, 32, 20)
+
+        if (message.isNotEmpty()) {
+            addView(ktTextView(message))
+        }
+
+        addView(progress)
+    }
+
+    return AlertDialog.Builder(this)
+    .setTitle(title)
+    .setView(content)
+    .setCancelable(cancelable)
+    .create()
+}
+
+//---
+fun ktShapeDrawable(
+    color: Int = Color.TRANSPARENT,
+    style: Paint.Style = Paint.Style.FILL,
+    strokeWidth: Float = 0f
+): ShapeDrawable {
+
+    return ShapeDrawable(RectShape()).apply {
+        paint.color = color
+        paint.style = style
+        paint.strokeWidth = strokeWidth
+    }
+}
+
+fun ktGradientDrawable(
+    color: Int = Color.TRANSPARENT,
+    radius: Float = 0f,
+    strokeWidth: Int = 0,
+    strokeColor: Int = Color.TRANSPARENT,
+    shape: Int = GradientDrawable.RECTANGLE
+): GradientDrawable {
+
+    return GradientDrawable().apply {
+        this.shape = shape
+        setColor(color)
+
+        cornerRadius = radius
+
+        if (strokeWidth > 0) {
+            setStroke(strokeWidth, strokeColor)
+        }
+    }
+}
+
+fun ktRippleDrawable(
+    rippleColor: Int,
+    content: Drawable? = null,
+    mask: Drawable? = null
+): RippleDrawable {
+
+    return RippleDrawable(
+        ColorStateList.valueOf(rippleColor),
+        content,
+        mask
+    )
 }
 
 //---
@@ -182,16 +319,25 @@ fun Context.ktSoundPool(
     .build()
 }
 
+// fun Activity.ktFilePicker(
+//     type: String = "*/*",
+//     multiple:Boolean = false,
+//     onResult : (Uri?) -> Unit = {}
+// ) {
+//     KtFilePickerManager.launch(this, type, multiple) {
+//         onResult(it.firstOrNull())
+//     }
+// }
+
 fun Activity.ktFilePicker(
     type: String = "*/*",
-    multiple:Boolean = false,
-    onResult : (Uri?) -> Unit = {}
+    multiple: Boolean = false,
+    onResult: (List<Uri>) -> Unit = {}
 ) {
     KtFilePickerManager.launch(this, type, multiple) {
-        onResult(it.firstOrNull())
+        onResult(it)
     }
 }
-
 //---
 
 private val pool = Executors.newFixedThreadPool(4)
@@ -234,23 +380,23 @@ fun <T : View> T.setTag(name: String): T {
 * val txt = mainLay.getViewByid<TextView>(100)
 */
 
-inline fun <reified T : View> ViewGroup.getId(id: Int): T? {
-    return findViewById(id)
-}
+// inline fun <reified T : View> ViewGroup.getId(id: Int): T? {
+//     return findViewById(id)
+// }
 
 /**
 * val txt = mainLay.getViewbyTag<TextView>("message")
 */
-inline fun <reified T : View> ViewGroup.getTag(name: String): T? {
+inline fun <reified T : View> ViewGroup.findViewByTag(name: String): T? {
     return findViewWithTag(name)
 }
 
 //---
-inline fun <reified T : View> Activity.getViewById(id: Int): T? {
-    return findViewById(id)
-}
+// inline fun <reified T : View> Activity.getViewById(id: Int): T? {
+//     return findViewById(id)
+// }
 
-inline fun <reified T : View> Activity.getViewByTag(name: String): T? {
+inline fun <reified T : View> Activity.findViewByTag(name: String): T? {
     val root = findViewById<View>(android.R.id.content)
     return root.findViewWithTag(name)
 }
@@ -280,3 +426,23 @@ fun Context.ktUriTOFileName(uri: Uri): String? {
 
     return null
 }
+
+/**usageval drawable = ktGradientDrawable(
+color = Color.BLUE,
+radius = 20f,
+strokeWidth = 2,
+strokeColor = Color.WHITE
+)
+
+button.background = drawable
+*
+val ripple = ktRippleDrawable(
+rippleColor = Color.LTGRAY,
+content = ktGradientDrawable(
+color = Color.BLUE,
+radius = 20f
+)
+)
+
+button.background = ripple
+*/

@@ -7,6 +7,8 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.provider.ContactsContract
+import android.provider.MediaStore
 import android.provider.Settings
 
 class KtIntent(
@@ -131,6 +133,18 @@ class KtIntent(
         return this
     }
 
+    fun showLocation(latitude: Double, longitude: Double): KtIntent {
+        action = Intent.ACTION_VIEW
+        data = Uri.parse("geo:$latitude,$longitude")
+        return this
+    }
+
+    fun navigateTo(latitude: Double, longitude: Double): KtIntent {
+        action = Intent.ACTION_VIEW
+        data = Uri.parse("google.navigation:q=$latitude,$longitude")
+        return this
+    }
+
     // -------------------------------
     // ANDROID SETTINGS
     // -------------------------------
@@ -198,6 +212,71 @@ class KtIntent(
         return this
     }
 
+    fun pickFile(mimeType: String = "*/*"): KtIntent {
+        action = Intent.ACTION_GET_CONTENT
+        type = mimeType
+        return this
+    }
+
+    fun pickContact(): KtIntent {
+        action = Intent.ACTION_PICK
+        data = ContactsContract.Contacts.CONTENT_URI
+        return this
+    }
+    fun openDocument(mimeType: String = "*/*"): KtIntent {
+        action = Intent.ACTION_OPEN_DOCUMENT
+        type = mimeType
+        addCategory(Intent.CATEGORY_OPENABLE)
+        return this
+    }
+
+    fun createDocument(mimeType: String, fileName: String): KtIntent {
+        action = Intent.ACTION_CREATE_DOCUMENT
+        type = mimeType
+        addCategory(Intent.CATEGORY_OPENABLE)
+        putExtra(Intent.EXTRA_TITLE, fileName)
+        return this
+    }
+
+    fun captureImage(outputUri: Uri): KtIntent {
+        action = MediaStore.ACTION_IMAGE_CAPTURE
+        putExtra(MediaStore.EXTRA_OUTPUT, outputUri)
+        addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        return this
+    }
+
+    fun captureVideo(outputUri: Uri): KtIntent {
+        action = MediaStore.ACTION_VIDEO_CAPTURE
+        putExtra(MediaStore.EXTRA_OUTPUT, outputUri)
+        addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+        return this
+    }
+
+    fun openWifiSettings(): KtIntent {
+        action = Settings.ACTION_WIFI_SETTINGS
+        return this
+    }
+
+    fun openBluetoothSettings(): KtIntent {
+        action = Settings.ACTION_BLUETOOTH_SETTINGS
+        return this
+    }
+
+    fun openLocationSettings(): KtIntent {
+        action = Settings.ACTION_LOCATION_SOURCE_SETTINGS
+        return this
+    }
+
+    fun openDisplaySettings(): KtIntent {
+        action = Settings.ACTION_DISPLAY_SETTINGS
+        return this
+    }
+
+    fun closeActivity() {
+        (context as? Activity)?.finish()
+    }
+    
     // -------------------------------
     // START
     // -------------------------------

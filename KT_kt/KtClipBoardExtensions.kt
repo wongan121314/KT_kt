@@ -1,3 +1,5 @@
+@file:Suppress("ALL")
+
 package com.KT_kt
 
 import android.content.Context
@@ -21,3 +23,26 @@ fun ClipboardManager.paste(): CharSequence? {
 fun ClipboardManager.clear() {
     clearPrimaryClip()
 }
+
+/**
+    class MainActivity : KtActivity() {
+
+    override fun onCreate() {
+        super.onCreate()
+
+        val clipboard = ktClipboard()
+
+        // Copy
+        clipboard.copy("Hello from KT_kt")
+
+        // Paste
+        val copiedText = clipboard.paste()
+
+        // Display copied text
+        println(copiedText)
+
+        // Clear
+        clipboard.clear()
+    }
+    }
+ */
