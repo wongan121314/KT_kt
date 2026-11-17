@@ -3,16 +3,18 @@
 
 package com.KT_kt
 
-import android.R.drawable
-import android.app.Activity
-import android.app.AlertDialog
-import android.app.DatePickerDialog
-import android.app.Dialog
-import android.app.TimePickerDialog
+import android.annotation.SuppressLint
+import android.app.*
 import android.content.Context
+import android.content.res.ColorStateList
 import android.content.res.Resources
 import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.RippleDrawable
+import android.graphics.drawable.ShapeDrawable
+import android.graphics.drawable.shapes.RectShape
 import android.icu.util.Calendar
 import android.media.SoundPool
 import android.net.Uri
@@ -25,13 +27,6 @@ import android.widget.*
 import android.widget.ListView
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
-import android.annotation.SuppressLint
-import android.content.res.ColorStateList
-import android.graphics.Paint
-import android.graphics.drawable.Drawable
-import android.graphics.drawable.RippleDrawable
-import android.graphics.drawable.ShapeDrawable
-import android.graphics.drawable.shapes.RectShape
 // -------------------------
 // DP, SP AND PX
 // -------------------------
@@ -61,10 +56,15 @@ fun ViewGroup.addViews(vararg views: View) {
 
 //---
 
-fun ListView.refresh() {
-    (adapter as? ArrayAdapter<*>)?.notifyDataSetChanged()
-}
+// @Deprecated("dont use this")
+// fun ListView.refresh() {
+//     (adapter as? ArrayAdapter<*>)?.notifyDataSetChanged()
+// }
 
+fun ListView.refresh(): ListView {
+    (adapter as? BaseAdapter)?.notifyDataSetChanged()
+    return this
+}
 //---
 
 fun ListView.setOnItemClickListener(
@@ -319,16 +319,11 @@ fun Context.ktSoundPool(
     .build()
 }
 
-// fun Activity.ktFilePicker(
-//     type: String = "*/*",
-//     multiple:Boolean = false,
-//     onResult : (Uri?) -> Unit = {}
-// ) {
-//     KtFilePickerManager.launch(this, type, multiple) {
-//         onResult(it.firstOrNull())
-//     }
-// }
 
+/**
+ * ktFilePicker(type:string,multiplr:Boolean)
+ * pick files from the phone 
+ */
 fun Activity.ktFilePicker(
     type: String = "*/*",
     multiple: Boolean = false,
@@ -361,7 +356,10 @@ fun <T> ktThread(
 //---
 
 /**
- ktButton("Play").setId(100)
+ * View.setId(Int)
+ * set a unit id of the view
+ * e.g ktButton("hello").setId(100)
+ *  - use findViewById<KtButton>(100)  // to find that view
  */
 fun <T : View> T.setId(id: Int): T {
     this.id = id
@@ -426,6 +424,30 @@ fun Context.ktUriTOFileName(uri: Uri): String? {
 
     return null
 }
+
+
+/**
+ * View.freeze(Boolean)   //remember to give the view an id 
+ * freeze the state of the view upon Activity recreation
+ * e.g ktTextView().setId(10).freeze(true/false)
+ */
+ 
+fun View.freeze(status: Boolean = true): View {
+    isSaveEnabled = status
+    isSaveFromParentEnabled = status
+    return this
+}
+
+
+
+
+
+
+
+
+
+
+
 
 /**usageval drawable = ktGradientDrawable(
 color = Color.BLUE,

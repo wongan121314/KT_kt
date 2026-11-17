@@ -1,11 +1,10 @@
 package com.KT_kt
 
-
 import android.app.Activity
 import android.view.View
 import android.view.ViewGroup
 
-fun Activity.KtSelect(selector: String): List<View> {
+fun Activity.ktSelect(selector: String): List<View> {
 
     val root = window.decorView
     val results = mutableListOf<View>()

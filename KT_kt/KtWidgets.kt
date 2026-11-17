@@ -4,6 +4,7 @@ package com.KT_kt
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.view.View
@@ -343,6 +344,43 @@ fun Context.ktTextClock(
         setBackgroundColor(bgColor)
         layoutParams = ViewGroup.LayoutParams(width, height)
         block()
+    }
+}
+
+
+fun Context.ktLabelText(
+    text: String,
+    block: TextView.() -> Unit = {}
+): TextView {
+    return TextView(this).apply {
+        this.text = text
+        textSize = 14f
+        setTypeface(null, Typeface.BOLD)
+        block()
+    }
+}
+
+fun Context.ktDivider(
+    color: Int = Color.LTGRAY,
+    height: Int = 1
+): View {
+    return View(this).apply {
+        setBackgroundColor(color)
+        layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            height
+        )
+    }
+}
+
+fun Context.ktGap(
+    height: Int = 10
+): View {
+    return View(this).apply {
+        layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            height
+        )
     }
 }
 

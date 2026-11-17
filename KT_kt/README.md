@@ -1,4 +1,4 @@
-
+<!-- 
 # version 1.9
 
 * added:
@@ -41,4 +41,13 @@
     - ktLabelText
     - ktDivider
     - ktGap
-    - KtShape
+    - KtShape 
+
+-->
+    
+# version 2.0.1
+    - fixed .refresh() ,it  was not returning (this)
+
+# version 2.1.0
+    - added ktGap,ktLabelText and ktGap
+    - added View.freeze(Boolean),help to save state of a view upon recreation,remeber to give the view an id e.g setId(1)
