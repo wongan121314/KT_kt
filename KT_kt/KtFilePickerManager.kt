@@ -1,3 +1,4 @@
+@file:Suppress("ALL", "kt.usePropertyAccess", "package.mismatch")
 package com.KT_kt
 
 import android.app.Activity
@@ -9,7 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger
 object KtFilePickerManager {
 
     private val callbacks =
-        WeakHashMap<Activity, MutableMap<Int, (List<Uri>) -> Unit>>()
+    WeakHashMap<Activity, MutableMap<Int, (List<Uri>) -> Unit>>()
 
     private val counter = AtomicInteger(100)
 
@@ -26,7 +27,12 @@ object KtFilePickerManager {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             this.type = type
             addCategory(Intent.CATEGORY_OPENABLE)
-            putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple)
+
+            if (multiple) {
+                putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+            } else {
+                putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false)
+            }
         }
 
         try {
@@ -44,7 +50,7 @@ object KtFilePickerManager {
         data: Intent?
     ) {
         val callback = callbacks[activity]?.remove(requestCode)
-            ?: return
+        ?: return
 
         val uris = mutableListOf<Uri>()
 

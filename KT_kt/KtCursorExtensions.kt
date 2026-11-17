@@ -1,3 +1,5 @@
+@file:Suppress("ALL")
+
 package com.KT_kt
 
 import android.content.ContentUris

@@ -1,35 +1,36 @@
+@file:Suppress("ALL", "package.mismatch")
+
 package com.KT_kt
-
-
 
 import android.content.Context
 import android.media.MediaPlayer
 import android.net.Uri
 
+class KtMediaPlayer(
+    private val context: Context
+) : MediaPlayer() {
 
-fun Context.KtMediaPlayer(
-    block: MediaPlayer.() -> Unit = {}
-): MediaPlayer {
-    return MediaPlayer().apply(block)
+    fun setFile(path: String) {
+        reset()
+        setDataSource(path)
+    }
+
+    fun setFile(uri: Uri) {
+        reset()
+        setDataSource(context, uri)
+    }
+
+    fun play() {
+        setOnPreparedListener {
+            start()
+        }
+
+        prepareAsync()
+    }
 }
 
-
-fun MediaPlayer.setFile(path: String) {
-    setDataSource(path)
-}
-
-fun MediaPlayer.setFile(context: Context, uri: Uri) {
-    setDataSource(context, uri)
-}
-
-fun MediaPlayer.play() {
-    start()
-}
-
-fun MediaPlayer.clear() {
-    reset()
-}
-
-fun MediaPlayer.stopPlayback() {
-    stop()
+fun Context.ktMediaPlayer(
+    block: KtMediaPlayer.() -> Unit = {}
+): KtMediaPlayer {
+    return KtMediaPlayer(this).apply(block)
 }

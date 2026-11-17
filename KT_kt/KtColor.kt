@@ -1,9 +1,11 @@
+@file:Suppress("ALL")
+
 package com.KT_kt
 
 import android.graphics.Color as AndroidColor
 import kotlin.math.abs
 
-open class Kt_Color {
+final public object KtColor {
 
     // RGB
     fun rgb(r: Int, g: Int, b: Int): Int {
@@ -55,3 +57,17 @@ open class Kt_Color {
         )
     }
 }
+
+
+/**usage 
+    ktTextView("Hello World") {
+    setTextColor(KtColor.hex("#004466"))
+    }
+
+    ktButton {
+    setBackgroundColor(
+        KtColor.rgb(0, 100, 150)
+    )
+    }
+
+ */

@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 
 
-fun Context.KtPreferences(
+fun Context.ktPreferences(
     name: String = "KtPreferences",
     mode: Int = Context.MODE_PRIVATE
 ): SharedPreferences {
