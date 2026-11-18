@@ -147,16 +147,46 @@ fun Context.ktCardLayout(
     }
 }
 
+// fun Context.ktRowLayout(
+//     width: Int = ViewGroup.LayoutParams.MATCH_PARENT,
+//     height: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
+//     bgColor: Int = Color.TRANSPARENT,
+//     block: LinearLayout.() -> Unit = {}
+// ): LinearLayout = ktLinearLayout(
+//     bgColor, width, height
+// ) {
+//     orientation = LinearLayout.HORIZONTAL
+//     block()
+// }
+
+// fun Context.ktColumnLayout(
+//     width: Int = ViewGroup.LayoutParams.MATCH_PARENT,
+//     height: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
+//     bgColor: Int = Color.TRANSPARENT,
+//     block: LinearLayout.() -> Unit = {}
+// ): LinearLayout = ktLinearLayout(
+//     bgColor, width, height
+// ) {
+//     orientation = LinearLayout.VERTICAL
+//     block()
+// }
+
+
 fun Context.ktRowLayout(
     width: Int = ViewGroup.LayoutParams.MATCH_PARENT,
     height: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
     bgColor: Int = Color.TRANSPARENT,
     block: LinearLayout.() -> Unit = {}
-): LinearLayout = ktLinearLayout(
-    bgColor, width, height
-) {
-    orientation = LinearLayout.HORIZONTAL
-    block()
+): LinearLayout {
+
+    return ktLinearLayout(
+        width = width,
+        height = height,
+        bgColor = bgColor
+    ) {
+        orientation = LinearLayout.HORIZONTAL
+        block()
+    }
 }
 
 fun Context.ktColumnLayout(
@@ -164,11 +194,16 @@ fun Context.ktColumnLayout(
     height: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
     bgColor: Int = Color.TRANSPARENT,
     block: LinearLayout.() -> Unit = {}
-): LinearLayout = ktLinearLayout(
-    bgColor, width, height
-) {
-    orientation = LinearLayout.VERTICAL
-    block()
+): LinearLayout {
+
+    return ktLinearLayout(
+        width = width,
+        height = height,
+        bgColor = bgColor
+    ) {
+        orientation = LinearLayout.VERTICAL
+        block()
+    }
 }
 
 fun Context.ktFrameLayout(
