@@ -39,8 +39,23 @@ open class KtActivity : Activity() {
 
 }
 
+/*
+ * service,start a background or foreground service, and call using intents
+ */
 open class KtService : Service() {
-    override fun onBind(intent: Intent): IBinder {
-        TODO("Not yet implemented")
+
+    override fun onBind(intent: Intent?): IBinder? = null
+
+    override fun onStartCommand(
+        intent: Intent?,
+        flags: Int,
+        startId: Int
+    ): Int {
+
+        return onStartCommand(intent)
+    }
+
+    open fun onStartCommand(intent: Intent?): Int {
+        return START_NOT_STICKY
     }
 }

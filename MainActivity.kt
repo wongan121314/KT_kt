@@ -1,62 +1,130 @@
-package com.testing
 
-import android.R.color
+package com.example.testoingktv21x
+
+import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
-import android.view.Gravity
-import android.widget.ListView
 import android.widget.TextView
-import com.KT_kt.KtActivity
-import com.KT_kt.addViews
-import com.KT_kt.findViewByTag
-import com.KT_kt.freeze
-import com.KT_kt.ktButton
-import com.KT_kt.ktColumnLayout
-import com.KT_kt.ktFilePicker
-import com.KT_kt.ktListView
-import com.KT_kt.ktMediaPlayer
-import com.KT_kt.ktTextView
-import com.KT_kt.ktToast
-import com.KT_kt.refresh
+import com.KT_kt.*
 
-class MainActivity: KtActivity() {
+class MainActivity : KtActivity() {
 
-    val mp = ktMediaPlayer()
-    val musicList: MutableList<Uri> = mutableListOf()
+    private val musicfiles = mutableListOf<Uri>()
 
     override fun onCreate() {
-        super.onCreate()
-
         setContentView(
             ktColumnLayout {
                 addViews(
-                    ktListView(musicList).apply {
-                        setTag("lsView")
+                                        ktTextView(
+                        "VERSION 2.1.1, simple music player app:",
+                        22f,
+                        Color.RED
+                    ).apply {
+                        tag = "tv"
+                        id = 100
+                        freezesMe = true
                     },
-                    ktTextView ("testing .freeze(true)", color = Color.RED, size = 30f).apply {
-                        freeze(true)
-                        gravity = Gravity.CENTER
-                        // setTag("txtView")
-                        id = 1
-                        tag = "txtView"
+                    ktTextView(
+                        "VERSION 2.1.1, simple music player app:",
+                        22f,
+                        Color.RED
+                    ).apply {
+                        tag = "tv"
+                        id = 100
+                        freezesMe = true
                     },
-                    ktButton("pick files").apply {
+
+                    ktButton("Select audios from storage").apply {
                         setOnClickListener {
-                            ktFilePicker("audio/*", true) {files ->
-                                ktToast(files.size.toString()).show()
-                                findViewByTag<TextView>("txtView")?.text = "${files.size}  were selected"
-                                findViewByTag<TextView>("txtView")?.setTextColor(Color.BLUE)
-                                
-                                musicList.addAll(files)
-                                
-                                findViewByTag<ListView>("lsView")?.refresh()
-                            }
+
+                            ktFilePicker("audio/*", true).apply {
+
+                                setOnFilesSelectedListener { files ->
+
+                                    if (files.isEmpty()) {
+                                        getViewByTag<TextView>("tv")
+                                        ?.text = "Select audios first"
+                                        return@setOnFilesSelectedListener
+                                    }
+
+                                    musicfiles.clear()
+                                    musicfiles.addAll(files)
+
+                                    getViewByTag<TextView>("tv")
+                                    ?.text = "${musicfiles.size} audios selected"
+
+                                    play()
+                                }
+                            }.launch()
                         }
                     }
-
                 )
             }
-
         )
+    }
+
+    fun play() {
+        ktToast("start playing").show()
+        ktIntent(TestService::class.java) {
+            action = "PLAY"
+            putParcelableArrayListExtra(
+                "FILES",
+                ArrayList(musicfiles)
+            )
+        }.startService()
+    }
+}
+
+class TestService : KtService() {
+
+    private lateinit var mp: KtMediaPlayer
+    private val musicfiles = mutableListOf<Uri>()
+
+    override fun onCreate() {
+        super.onCreate()
+        mp = ktMediaPlayer()
+    }
+
+    override fun onStartCommand(intent: Intent?): Int {
+
+        when (intent?.action) {
+
+            "PLAY" -> {
+
+                val files = intent.getParcelableArrayListExtra<Uri>("FILES")
+
+                if (!files.isNullOrEmpty()) {
+                    musicfiles.clear()
+                    musicfiles.addAll(files)
+                    play()
+                }
+            }
+
+            "STOP" -> {
+                mp.stop()
+                stopSelf()
+            }
+        }
+
+        return START_NOT_STICKY
+    }
+
+    private fun play() {
+        if (musicfiles.isNotEmpty()) {
+            val file = musicfiles.random()
+
+            mp.setFile(file)
+            mp.isLooping = true
+            mp.play()
+        }
+    }
+
+    override fun onDestroy() {
+        if (::mp.isInitialized) {
+            mp.stop()
+            mp.release()
+        }
+
+        super.onDestroy()
     }
 }

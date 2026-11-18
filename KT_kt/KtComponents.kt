@@ -3,6 +3,7 @@
 
 package com.KT_kt
 
+import android.R
 import android.annotation.SuppressLint
 import android.app.*
 import android.content.Context
@@ -16,9 +17,11 @@ import android.graphics.drawable.RippleDrawable
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RectShape
 import android.icu.util.Calendar
+import android.media.MediaRecorder.AudioSource
 import android.media.SoundPool
 import android.net.Uri
 import android.os.*
+import android.os.IBinder.DeathRecipient
 import android.provider.OpenableColumns
 import android.view.View
 import android.view.ViewGroup
@@ -309,8 +312,9 @@ fun Activity.KtStatusBar(
     }
 }
 
-//---
-
+/**
+ * play small Audios 
+ */
 fun Context.ktSoundPool(
     maxStreams: Int = 5
 ): SoundPool {
@@ -319,12 +323,12 @@ fun Context.ktSoundPool(
     .build()
 }
 
-
 /**
- * ktFilePicker(type:string,multiplr:Boolean)
+ * ktFilePicker(type:string,multiple:Boolean)
  * pick files from the phone 
  */
-fun Activity.ktFilePicker(
+@Deprecated("use ktFilePicker instead")
+fun Activity.XktFilePicker(
     type: String = "*/*",
     multiple: Boolean = false,
     onResult: (List<Uri>) -> Unit = {}
@@ -332,6 +336,22 @@ fun Activity.ktFilePicker(
     KtFilePickerManager.launch(this, type, multiple) {
         onResult(it)
     }
+}
+
+/**
+ * ktFilePicker(type:string,multiple:Boolean).setOnFileSelecteListener{_->...}
+ * pick files from the phone and  
+ */
+fun Activity.ktFilePicker(
+    type: String = "*/*",
+    multiple: Boolean = false
+): KtFilePickerRequest {
+
+    return KtFilePickerRequest(
+        this,
+        type,
+        multiple
+    )
 }
 //---
 
@@ -361,6 +381,7 @@ fun <T> ktThread(
  * e.g ktButton("hello").setId(100)
  *  - use findViewById<KtButton>(100)  // to find that view
  */
+@Deprecated("use android [id] instead")
 fun <T : View> T.setId(id: Int): T {
     this.id = id
     return this
@@ -369,6 +390,7 @@ fun <T : View> T.setId(id: Int): T {
 /**
  ktButton("Play").setTag("btn1")
  */
+@Deprecated("use android [tag] instead")
 fun <T : View> T.setTag(name: String): T {
     tag = name
     return this
@@ -378,27 +400,35 @@ fun <T : View> T.setTag(name: String): T {
 * val txt = mainLay.getViewByid<TextView>(100)
 */
 
-// inline fun <reified T : View> ViewGroup.getId(id: Int): T? {
-//     return findViewById(id)
-// }
+@Deprecated("use getViewByid")
+inline fun <reified T : View> ViewGroup.getId(id: Int): T? {
+    return findViewById(id)
+}
 
 /**
 * val txt = mainLay.getViewbyTag<TextView>("message")
 */
+@Deprecated("use getViewbyTag")
 inline fun <reified T : View> ViewGroup.findViewByTag(name: String): T? {
     return findViewWithTag(name)
 }
 
-//---
-// inline fun <reified T : View> Activity.getViewById(id: Int): T? {
-//     return findViewById(id)
-// }
-
-inline fun <reified T : View> Activity.findViewByTag(name: String): T? {
+/**
+ * use any declared view from any scope using tag:String
+ */
+inline fun <reified T : View> Activity.getViewByTag(name: String): T? {
     val root = findViewById<View>(android.R.id.content)
     return root.findViewWithTag(name)
 }
 
+/**
+ * use any declared view from any scope using id:Int
+ */
+inline fun <reified T : View> Activity.getViewById(
+    id: Int
+): T? {
+    return findViewById(id)
+}
 //---
 
 fun Context.ktUriTOFileName(uri: Uri): String? {
@@ -424,47 +454,3 @@ fun Context.ktUriTOFileName(uri: Uri): String? {
 
     return null
 }
-
-
-/**
- * View.freeze(Boolean)   //remember to give the view an id 
- * freeze the state of the view upon Activity recreation
- * e.g ktTextView().setId(10).freeze(true/false)
- */
- 
-fun View.freeze(status: Boolean = true): View {
-    isSaveEnabled = status
-    isSaveFromParentEnabled = status
-    return this
-}
-
-
-
-
-
-
-
-
-
-
-
-
-/**usageval drawable = ktGradientDrawable(
-color = Color.BLUE,
-radius = 20f,
-strokeWidth = 2,
-strokeColor = Color.WHITE
-)
-
-button.background = drawable
-*
-val ripple = ktRippleDrawable(
-rippleColor = Color.LTGRAY,
-content = ktGradientDrawable(
-color = Color.BLUE,
-radius = 20f
-)
-)
-
-button.background = ripple
-*/

@@ -7,6 +7,7 @@ import android.net.Uri
 import java.util.WeakHashMap
 import java.util.concurrent.atomic.AtomicInteger
 
+@Deprecated("old")
 object KtFilePickerManager {
 
     private val callbacks =
@@ -68,5 +69,49 @@ object KtFilePickerManager {
         }
 
         callback(uris)
+    }
+}
+
+class KtFilePickerRequest(
+    private val activity: Activity,
+    private val type: String,
+    private val multiple: Boolean
+) {
+
+    private var fileListener: ((Uri) -> Unit)? = null
+    private var filesListener: ((List<Uri>) -> Unit)? = null
+
+    fun setOnFileSelectedListener(
+        listener: (Uri) -> Unit
+    ): KtFilePickerRequest {
+        fileListener = listener
+        return this
+    }
+
+    fun setOnFilesSelectedListener(
+        listener: (List<Uri>) -> Unit
+    ): KtFilePickerRequest {
+        filesListener = listener
+        return this
+    }
+
+    fun launch(): KtFilePickerRequest {
+
+        KtFilePickerManager.launch(
+            activity,
+            type,
+            multiple
+        ) { uris ->
+
+            if (multiple) {
+                filesListener?.invoke(uris)
+            } else {
+                uris.firstOrNull()?.let {
+                    fileListener?.invoke(it)
+                }
+            }
+        }
+
+        return this
     }
 }

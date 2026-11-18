@@ -4,9 +4,11 @@
 package com.KT_kt
 
 import android.app.Activity
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.provider.Settings
@@ -14,7 +16,12 @@ import android.provider.Settings
 class KtIntent(
     private val context: Context
 ) : Intent() {
-
+    constructor(
+        context: Context,
+        target: Class<*>
+    ) : this(context) {
+        setClass(context, target)
+    }
     // -------------------------------
     // OPENING URI / WEBSITES
     // -------------------------------
@@ -276,7 +283,7 @@ class KtIntent(
     fun closeActivity() {
         (context as? Activity)?.finish()
     }
-    
+
     // -------------------------------
     // START
     // -------------------------------
@@ -304,6 +311,34 @@ class KtIntent(
     fun closeApp() {
         (context as? Activity)?.finish()
     }
+
+    // -------------------------------
+    // ACTIVITY AND SERVICE STARTING
+    // -------------------------------
+
+    fun startActivity() {
+        if (context !is Activity) {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+
+        context.startActivity(this)
+    }
+
+    fun startService(): ComponentName? {
+        return context.startService(this)
+    }
+
+    fun startForegroundService(): ComponentName? {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(this)
+        } else {
+            context.startService(this)
+        }
+    }
+
+    fun stopService(): Boolean {
+        return context.stopService(this)
+    }
 }
 
 // -----------------------------------
@@ -314,4 +349,11 @@ fun Context.ktIntent(
     block: KtIntent.() -> Unit = {}
 ): KtIntent {
     return KtIntent(this).apply(block)
+}
+
+fun Context.ktIntent(
+    target: Class<*>,
+    block: KtIntent.() -> Unit = {}
+): KtIntent {
+    return KtIntent(this, target).apply(block)
 }
