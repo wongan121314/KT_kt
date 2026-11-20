@@ -16,11 +16,12 @@ import android.widget.*
 
 fun Context.ktButton(
     text: String = "",
-    size: Float = 14f,
+    size : Float = 14f,
     color: Int = Color.BLACK,
     bgColor: Int = Color.TRANSPARENT,
     width: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
     height: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
+    tag: Any? = null,
     block: Button.() -> Unit = {}
 ): Button {
 
@@ -29,7 +30,7 @@ fun Context.ktButton(
         textSize = size
         setTextColor(color)
         setBackgroundColor(bgColor)
-
+        this.tag = tag
         layoutParams = ViewGroup.LayoutParams(width, height)
 
         block()
@@ -43,11 +44,13 @@ fun Context.ktToggleButton(
     bgColor: Int = Color.TRANSPARENT,
     width: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
     height: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
+    tag: Any? = null,
     block: ToggleButton.() -> Unit = {}
 ): ToggleButton {
 
     return ToggleButton(this).apply {
         this.text = text
+        this.tag = tag
         textSize = size
         setTextColor(color)
         setBackgroundColor(bgColor)
@@ -62,11 +65,13 @@ fun Context.ktRadioButton(
     bgColor: Int = Color.TRANSPARENT,
     width: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
     height: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
+    tag: Any? = null,
     block: RadioButton.() -> Unit = {}
 ): RadioButton {
 
     return RadioButton(this).apply {
         this.text = text
+        this.tag = tag
         textSize = size
         setTextColor(color)
         setBackgroundColor(bgColor)
@@ -79,7 +84,7 @@ fun Context.ktImageButton(
     imageRes: Int = 0,
     bgColor: Int = Color.TRANSPARENT,
     width: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
-    height: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
+    height: Int = ViewGroup.LayoutParams.WRAP_CONTENT, tag: Any? = null,
     block: ImageButton.() -> Unit = {}
 ): ImageButton {
 
@@ -99,7 +104,7 @@ fun Context.ktImageButton(
 
 fun Context.ktLinearLayout(
     width: Int = ViewGroup.LayoutParams.MATCH_PARENT,
-    height: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
+    height: Int = ViewGroup.LayoutParams.WRAP_CONTENT, tag: Any? = null,
     bgColor: Int = Color.TRANSPARENT,
     block: LinearLayout.() -> Unit = {}
 ): LinearLayout {
@@ -114,6 +119,7 @@ fun Context.ktLinearLayout(
 fun Context.ktCardLayout(
     width: Int = ViewGroup.LayoutParams.MATCH_PARENT,
     height: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
+    tag: Any? = null,
     bgColor: Int = Color.WHITE,
     cornerRadius: Float = 16f,
     elevation: Float = 4f,
@@ -147,34 +153,10 @@ fun Context.ktCardLayout(
     }
 }
 
-// fun Context.ktRowLayout(
-//     width: Int = ViewGroup.LayoutParams.MATCH_PARENT,
-//     height: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
-//     bgColor: Int = Color.TRANSPARENT,
-//     block: LinearLayout.() -> Unit = {}
-// ): LinearLayout = ktLinearLayout(
-//     bgColor, width, height
-// ) {
-//     orientation = LinearLayout.HORIZONTAL
-//     block()
-// }
-
-// fun Context.ktColumnLayout(
-//     width: Int = ViewGroup.LayoutParams.MATCH_PARENT,
-//     height: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
-//     bgColor: Int = Color.TRANSPARENT,
-//     block: LinearLayout.() -> Unit = {}
-// ): LinearLayout = ktLinearLayout(
-//     bgColor, width, height
-// ) {
-//     orientation = LinearLayout.VERTICAL
-//     block()
-// }
-
-
 fun Context.ktRowLayout(
     width: Int = ViewGroup.LayoutParams.MATCH_PARENT,
     height: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
+    tag: Any? = null,
     bgColor: Int = Color.TRANSPARENT,
     block: LinearLayout.() -> Unit = {}
 ): LinearLayout {
@@ -192,6 +174,7 @@ fun Context.ktRowLayout(
 fun Context.ktColumnLayout(
     width: Int = ViewGroup.LayoutParams.MATCH_PARENT,
     height: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
+    tag: Any? = null,
     bgColor: Int = Color.TRANSPARENT,
     block: LinearLayout.() -> Unit = {}
 ): LinearLayout {
@@ -199,22 +182,25 @@ fun Context.ktColumnLayout(
     return ktLinearLayout(
         width = width,
         height = height,
-        bgColor = bgColor
+        bgColor = bgColor,
+        tag = tag
     ) {
         orientation = LinearLayout.VERTICAL
+
         block()
     }
 }
 
 fun Context.ktFrameLayout(
     width: Int = ViewGroup.LayoutParams.MATCH_PARENT,
-    height: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
+    height: Int = ViewGroup.LayoutParams.WRAP_CONTENT, tag: Any? = null,
     bgColor: Int = Color.TRANSPARENT,
     block: FrameLayout.() -> Unit = {}
 ): FrameLayout {
 
     return FrameLayout(this).apply {
         setBackgroundColor(bgColor)
+        this.tag = tag
         layoutParams = ViewGroup.LayoutParams(width, height)
         block()
     }
@@ -222,13 +208,14 @@ fun Context.ktFrameLayout(
 
 fun Context.ktRelativeLayout(
     width: Int = ViewGroup.LayoutParams.MATCH_PARENT,
-    height: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
+    height: Int = ViewGroup.LayoutParams.WRAP_CONTENT, tag: Any? = null,
     bgColor: Int = Color.TRANSPARENT,
     block: RelativeLayout.() -> Unit = {}
 ): RelativeLayout {
 
     return RelativeLayout(this).apply {
         setBackgroundColor(bgColor)
+        this.tag = tag
         layoutParams = ViewGroup.LayoutParams(width, height)
         block()
     }
@@ -237,12 +224,14 @@ fun Context.ktRelativeLayout(
 fun Context.ktAbsoluteLayout(
     width: Int = ViewGroup.LayoutParams.MATCH_PARENT,
     height: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
+    tag: Any? = null,
     bgColor: Int = Color.TRANSPARENT,
     block: AbsoluteLayout.() -> Unit = {}
 ): AbsoluteLayout {
 
     return AbsoluteLayout(this).apply {
         setBackgroundColor(bgColor)
+        this.tag = tag
         layoutParams = ViewGroup.LayoutParams(width, height)
         block()
     }
@@ -251,12 +240,14 @@ fun Context.ktAbsoluteLayout(
 fun Context.ktTableLayout(
     width: Int = ViewGroup.LayoutParams.MATCH_PARENT,
     height: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
+    tag: Any? = null,
     bgColor: Int = Color.TRANSPARENT,
     block: TableLayout.() -> Unit = {}
 ): TableLayout {
 
     return TableLayout(this).apply {
         setBackgroundColor(bgColor)
+        this.tag = tag
         layoutParams = ViewGroup.LayoutParams(width, height)
         block()
     }
@@ -265,12 +256,14 @@ fun Context.ktTableLayout(
 fun Context.ktGridLayout(
     width: Int = ViewGroup.LayoutParams.MATCH_PARENT,
     height: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
+    tag: Any? = null,
     bgColor: Int = Color.TRANSPARENT,
     block: GridLayout.() -> Unit = {}
 ): GridLayout {
 
     return GridLayout(this).apply {
         setBackgroundColor(bgColor)
+        this.tag = tag
         layoutParams = ViewGroup.LayoutParams(width, height)
         block()
     }
@@ -280,11 +273,13 @@ fun Context.ktHorizontalScrollView(
     bgColor: Int = Color.TRANSPARENT,
     width: Int = ViewGroup.LayoutParams.MATCH_PARENT,
     height: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
+    tag: Any? = null,
     block: HorizontalScrollView.() -> Unit = {}
 ): HorizontalScrollView {
 
     return HorizontalScrollView(this).apply {
         setBackgroundColor(bgColor)
+        this.tag = tag
         layoutParams = ViewGroup.LayoutParams(width, height)
         block()
     }
@@ -294,11 +289,13 @@ fun Context.ktScrollView(
     bgColor: Int = Color.TRANSPARENT,
     width: Int = ViewGroup.LayoutParams.MATCH_PARENT,
     height: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
+    tag: Any? = null,
     block: ScrollView.() -> Unit = {}
 ): ScrollView {
 
     return ScrollView(this).apply {
         setBackgroundColor(bgColor)
+        this.tag = tag
         layoutParams = ViewGroup.LayoutParams(width, height)
         block()
     }
@@ -308,11 +305,13 @@ fun Context.ktTableRow(
     bgColor: Int = Color.TRANSPARENT,
     width: Int = MATCH_PARENT,
     height: Int = WRAP_CONTENT,
+    tag:Any = "",
     block: TableRow.() -> Unit = {}
 ): TableRow {
 
     return TableRow(this).apply {
         setBackgroundColor(bgColor)
+        this.tag = tag
         layoutParams = TableLayout.LayoutParams(width, height)
         block()
     }
@@ -329,11 +328,13 @@ fun Context.ktTextView(
     bgColor: Int = Color.TRANSPARENT,
     width: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
     height: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
+    tag: Any? = null,
     block: TextView.() -> Unit = {}
 ): TextView {
 
     return TextView(this).apply {
         this.text = text
+        this.tag = tag
         textSize = size
         setTextColor(color)
         setBackgroundColor(bgColor)
@@ -382,7 +383,6 @@ fun Context.ktTextClock(
     }
 }
 
-
 fun Context.ktLabelText(
     text: String,
     block: TextView.() -> Unit = {}
@@ -430,6 +430,7 @@ fun Context.ktEditText(
     bgColor: Int = Color.TRANSPARENT,
     width: Int = WRAP_CONTENT,
     height: Int = WRAP_CONTENT,
+    tag: Any? = null,
     block: EditText.() -> Unit = {}
 ): EditText {
 
@@ -438,6 +439,7 @@ fun Context.ktEditText(
         textSize = size
         setTextColor(color)
         setBackgroundColor(bgColor)
+        this.tag = tag
         layoutParams = ViewGroup.LayoutParams(width, height)
         block()
     }
@@ -524,11 +526,13 @@ fun Context.ktCalendarView(
 fun Context.ktSpinner(
     width: Int = WRAP_CONTENT,
     height: Int = WRAP_CONTENT,
+    tag: Any? = null,
     mode: Int = Spinner.MODE_DROPDOWN,
     block: Spinner.() -> Unit = {}
 ): Spinner {
     return Spinner(this, mode).apply {
         layoutParams = ViewGroup.LayoutParams(width, height)
+        this.tag = tag
         block()
     }
 }
@@ -596,6 +600,7 @@ fun Context.ktImageView(
     bgColor: Int = Color.TRANSPARENT,
     width: Int = WRAP_CONTENT,
     height: Int = WRAP_CONTENT,
+    tag:Any = "",
     block: ImageView.() -> Unit = {}
 ): ImageView {
 
@@ -605,6 +610,7 @@ fun Context.ktImageView(
         }
 
         setBackgroundColor(bgColor)
+        this.tag = tag
         layoutParams = ViewGroup.LayoutParams(width, height)
         block()
     }
@@ -632,11 +638,13 @@ fun Context.ktView(
     bgColor: Int = Color.TRANSPARENT,
     width: Int = WRAP_CONTENT,
     height: Int = WRAP_CONTENT,
+    tag:Any = "",
     block: View.() -> Unit = {}
 ): View {
 
     return View(this).apply {
         setBackgroundColor(bgColor)
+        this.tag = tag
         layoutParams = ViewGroup.LayoutParams(width, height)
         block()
     }
@@ -689,6 +697,7 @@ fun <T> Context.ktListView(
     items: MutableList<T> = mutableListOf(),
     width: Int = MATCH_PARENT,
     height: Int = WRAP_CONTENT,
+    tag:Any = "",
     bgColor: Int = Color.TRANSPARENT,
     textSize: Float = 16f,
     textColor: Int = Color.BLACK,
@@ -703,6 +712,7 @@ fun <T> Context.ktListView(
         layoutParams = ViewGroup.LayoutParams(width, height)
 
         setBackgroundColor(bgColor)
+        this.tag = tag
         divider = ColorDrawable(dividerColor)
         this.dividerHeight = dividerHeight
 
@@ -783,6 +793,7 @@ fun <T> Context.ktSpinner(
     items: List<T> = emptyList(),
     width: Int = WRAP_CONTENT,
     height: Int = WRAP_CONTENT,
+    tag: Any? = null,
     bgColor: Int = Color.TRANSPARENT,
     textSize: Float = 16f,
     textColor: Int = Color.BLACK,
@@ -797,7 +808,7 @@ fun <T> Context.ktSpinner(
         layoutParams = ViewGroup.LayoutParams(width, height)
 
         setBackgroundColor(bgColor)
-
+        this.tag = tag
         this.dropDownWidth = dropWidth
 
         adapter = ktAdapter(items) {

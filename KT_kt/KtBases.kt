@@ -22,6 +22,21 @@ open class KtActivity : Activity() {
         // Override this in subclasses.
     }
 
+    // override fun onActivityResult(
+    //     requestCode: Int,
+    //     resultCode: Int,
+    //     data: Intent?
+    // ) {
+    //     super.onActivityResult(requestCode, resultCode, data)
+
+    //     KtFilePickerManager.onActivityResult(
+    //         this,
+    //         requestCode,
+    //         resultCode,
+    //         data
+    //     )
+    // }
+
     override fun onActivityResult(
         requestCode: Int,
         resultCode: Int,
@@ -29,7 +44,7 @@ open class KtActivity : Activity() {
     ) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        KtFilePickerManager.onActivityResult(
+        KtActivityResultManager.onActivityResult(
             this,
             requestCode,
             resultCode,
@@ -58,4 +73,5 @@ open class KtService : Service() {
     open fun onStartCommand(intent: Intent?): Int {
         return START_NOT_STICKY
     }
+
 }

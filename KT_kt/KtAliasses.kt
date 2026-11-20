@@ -68,6 +68,9 @@ const val GONE = View.GONE
 
 const val MATCH_PARENT = ViewGroup.LayoutParams.MATCH_PARENT
 const val WRAP_CONTENT = ViewGroup.LayoutParams.WRAP_CONTENT
+//alternative
+const val FULL = ViewGroup.LayoutParams.MATCH_PARENT
+const val AUTO = ViewGroup.LayoutParams.WRAP_CONTENT
 
 // ==============================
 // ORIENTATION

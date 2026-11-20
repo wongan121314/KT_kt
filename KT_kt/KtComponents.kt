@@ -17,11 +17,10 @@ import android.graphics.drawable.RippleDrawable
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RectShape
 import android.icu.util.Calendar
-import android.media.MediaRecorder.AudioSource
 import android.media.SoundPool
 import android.net.Uri
 import android.os.*
-import android.os.IBinder.DeathRecipient
+import android.print.PrintAttributes.Margins
 import android.provider.OpenableColumns
 import android.view.View
 import android.view.ViewGroup
@@ -30,6 +29,7 @@ import android.widget.*
 import android.widget.ListView
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
+import kotlin.reflect.KProperty
 // -------------------------
 // DP, SP AND PX
 // -------------------------
@@ -323,38 +323,6 @@ fun Context.ktSoundPool(
     .build()
 }
 
-/**
- * ktFilePicker(type:string,multiple:Boolean)
- * pick files from the phone 
- */
-@Deprecated("use ktFilePicker instead")
-fun Activity.XktFilePicker(
-    type: String = "*/*",
-    multiple: Boolean = false,
-    onResult: (List<Uri>) -> Unit = {}
-) {
-    KtFilePickerManager.launch(this, type, multiple) {
-        onResult(it)
-    }
-}
-
-/**
- * ktFilePicker(type:string,multiple:Boolean).setOnFileSelecteListener{_->...}
- * pick files from the phone and  
- */
-fun Activity.ktFilePicker(
-    type: String = "*/*",
-    multiple: Boolean = false
-): KtFilePickerRequest {
-
-    return KtFilePickerRequest(
-        this,
-        type,
-        multiple
-    )
-}
-//---
-
 private val pool = Executors.newFixedThreadPool(4)
 private val mainHandler = Handler(Looper.getMainLooper())
 
@@ -453,4 +421,178 @@ fun Context.ktUriTOFileName(uri: Uri): String? {
     }
 
     return null
+}
+
+/**
+* ## useState Usage
+*
+* `useState` provides a simple way to manage mutable state
+* and listen for changes.
+*
+* It supports two ways of accessing state:
+*
+* --------------------------------------------------
+*
+* #### Example:
+*
+* ```
+* val nameState = useState("John")
+* var name by nameState
+*
+* nameState.bind {
+*     println("Name changed: $it")
+* } // auto update the variable
+*
+* name.value = "Mike" // change the variable
+* println(name)
+* ```
+*
+* --------------------------------------------------
+*
+*/
+class useState<T>(initialValue: T) {
+
+    private val listeners = mutableListOf<(T) -> Unit>()
+
+    var value: T = initialValue
+    set(newValue) {
+        if (field == newValue) return
+
+        field = newValue
+
+        listeners.toList().forEach {
+            it(newValue)
+        }
+    }
+
+    fun bind(listener: (T) -> Unit) {
+        listeners.add(listener)
+        listener(value)
+    }
+}
+
+fun View.show(): View {
+    visibility = View.VISIBLE
+    return this
+}
+
+fun View.hide(): View {
+    visibility = View.INVISIBLE
+    return this
+}
+
+fun View.gone(): View {
+    visibility = View.GONE
+    return this
+}
+
+// 1 argument: all sides
+fun View.setPadding(all: Int): View {
+    setPadding(all, all, all, all)
+    return this
+}
+
+// 2 arguments: horizontal, vertical
+fun View.setPadding(horizontal: Int, vertical: Int): View {
+    setPadding(horizontal, vertical, horizontal, vertical)
+    return this
+}
+
+// 4 arguments: left, top, right, bottom
+fun View.setPadding(
+    left: Int,
+    top: Int,
+    right: Int,
+    bottom: Int
+): View {
+    setPadding(left, top, right, bottom)
+    return this
+}
+
+private fun View.applyMargins(
+    left: Int,
+    top: Int,
+    right: Int,
+    bottom: Int
+): View {
+    val params = layoutParams as? ViewGroup.MarginLayoutParams
+    ?: return this
+
+    params.setMargins(left, top, right, bottom)
+    layoutParams = params
+    return this
+}
+
+fun View.setMargin(all: Int): View {
+    return applyMargins(all, all, all, all)
+}
+
+fun View.setMargin(horizontal: Int, vertical: Int): View {
+    return applyMargins(horizontal, vertical, horizontal, vertical)
+}
+
+fun View.setMargin(
+    left: Int,
+    top: Int,
+    right: Int,
+    bottom: Int
+): View {
+    return applyMargins(left, top, right, bottom)
+}
+
+private fun View.applyCornerRadius(
+    topLeft: Float,
+    topRight: Float,
+    bottomRight: Float,
+    bottomLeft: Float
+): View {
+
+    val density = resources.displayMetrics.density
+
+    background = GradientDrawable().apply {
+        setColor(Color.TRANSPARENT)
+
+        cornerRadii = floatArrayOf(
+            topLeft * density, topLeft * density,
+            topRight * density, topRight * density,
+            bottomRight * density, bottomRight * density,
+            bottomLeft * density, bottomLeft * density
+        )
+    }
+
+    return this
+}
+
+fun View.setCornerRadius(all: Float): View {
+    return applyCornerRadius(all, all, all, all)
+}
+
+fun View.setCornerRadius(top: Float, bottom: Float): View {
+    return applyCornerRadius(top, top, bottom, bottom)
+}
+
+fun View.setCornerRadius(
+    topLeft: Float,
+    topRight: Float,
+    bottomRight: Float,
+    bottomLeft: Float
+): View {
+    return applyCornerRadius(topLeft, topRight, bottomRight, bottomLeft)
+}
+
+fun View.setPosition(all: Int): View {
+    return applyMargins(all, all, all, all)
+}
+
+fun View.setPosition(horizontal: Int, vertical: Int): View {
+    return applyMargins(horizontal, vertical, horizontal, vertical)
+}
+
+fun View.setPosition(
+    left: Int,
+    top: Int,
+    right: Int,
+    bottom: Int
+): View {
+    return applyMargins(left, top, right, bottom)
 }

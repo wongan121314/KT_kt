@@ -1,5 +1,4 @@
-
-package com.testing220
+package com.ktkt
 
 import android.content.Intent
 import android.graphics.Color
@@ -329,7 +328,7 @@ class MainActivity : KtActivity() {
                                 setTypeface(null, Typeface.BOLD)
 
                                 setOnClickListener {
-                                    selectAudios()
+                                    // selectAudios()
                                 }
                             }
                         )
@@ -343,52 +342,22 @@ class MainActivity : KtActivity() {
         fileCount = getViewByTag("file_count")!!
     }
 
-    private fun selectAudios() {
+    // fun play() {
 
-        ktFilePicker("audio/*", true).apply {
+    //     ktToast("Starting playback").show()
 
-            setOnFilesSelectedListener { files ->
+    //     ktIntent(TestService::class.java) {
 
-                if (files.isEmpty()) {
-                    songInfo.text = "No audio selected"
-                    return@setOnFilesSelectedListener
-                }
+    //         action = "PLAY"
 
-                musicfiles.clear()
-                musicfiles.addAll(files)
+    //         putParcelableArrayListExtra(
+    //             "FILES",
+    //             ArrayList(musicfiles)
+    //         )
 
-                fileCount.text = "${musicfiles.size} songs"
-                songTitle.text = "Music selected"
-                songInfo.text = "${musicfiles.size} audio files ready"
-
-                play()
-            }
-
-        }.launch()
-    }
-
-    fun play() {
-
-        ktToast("Starting playback").show()
-
-        ktIntent(TestService::class.java) {
-
-            action = "PLAY"
-
-            putParcelableArrayListExtra(
-                "FILES",
-                ArrayList(musicfiles)
-            )
-
-        }.startService()
-    }
+    //     }.startService()
+    // }
 }
-
-
-
-
-
-
 
 class TestService : KtService() {
 
@@ -398,7 +367,7 @@ class TestService : KtService() {
     override fun onCreate() {
         super.onCreate()
         mp = ktMediaPlayer()
-        mp?.setOnCompletionListener{
+        mp?.setOnCompletionListener {
             play()
         }
     }
@@ -415,7 +384,7 @@ class TestService : KtService() {
                     musicfiles.clear()
                     musicfiles.addAll(files)
                     play()
-                    
+
                 }
             }
 
@@ -431,7 +400,7 @@ class TestService : KtService() {
     private fun play() {
         if (musicfiles.isNotEmpty()) {
             val file = musicfiles.random()
-            
+
             mp.setFile(file)
             mp.isLooping = true
             mp.play()

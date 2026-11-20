@@ -9,12 +9,14 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.provider.AlarmClock
+import android.provider.CalendarContract
 import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.provider.Settings
 
 class KtIntent(
-    private val context: Context
+    internal  val context: Context
 ) : Intent() {
     constructor(
         context: Context,
@@ -195,6 +197,84 @@ class KtIntent(
         return this
     }
 
+    //others
+    // ALARM AND CLOCK
+
+    fun openAlarm() {
+        action = AlarmClock.ACTION_SHOW_ALARMS
+    }
+
+    fun setAlarm(
+        hour: Int,
+        minutes: Int,
+        message: String = "Alarm"
+    ) {
+        action = AlarmClock.ACTION_SET_ALARM
+        putExtra(AlarmClock.EXTRA_HOUR, hour)
+        putExtra(AlarmClock.EXTRA_MINUTES, minutes)
+        putExtra(AlarmClock.EXTRA_MESSAGE, message)
+    }
+
+    fun openTimer() {
+        action = AlarmClock.ACTION_SET_TIMER
+    }
+
+    fun openClock() {
+        action = AlarmClock.ACTION_SHOW_ALARMS
+    }
+
+    // CALENDAR
+
+    fun openCalendar() {
+        action = Intent.ACTION_VIEW
+        data = CalendarContract.CONTENT_URI
+    }
+
+    fun createCalendarEvent(
+        title: String,
+        description: String = "",
+        beginTime: Long,
+        endTime: Long
+    ) {
+        action = Intent.ACTION_INSERT
+        data = CalendarContract.Events.CONTENT_URI
+
+        putExtra(CalendarContract.Events.TITLE, title)
+        putExtra(CalendarContract.Events.DESCRIPTION, description)
+        putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, beginTime)
+        putExtra(CalendarContract.EXTRA_EVENT_END_TIME, endTime)
+    }
+
+    // CALCULATOR
+
+    fun openCalculator() {
+        action = Intent.ACTION_MAIN
+        addCategory(Intent.CATEGORY_APP_CALCULATOR)
+    }
+
+    // CONTACTS
+
+    fun openContacts() {
+        action = Intent.ACTION_VIEW
+        data = ContactsContract.Contacts.CONTENT_URI
+    }
+
+    // PHONE
+
+    fun openPhone() {
+        action = Intent.ACTION_DIAL
+    }
+
+    // SETTINGS
+
+    // fun openSettings() {
+    //     action = Settings.ACTION_SETTINGS
+    // }
+
+    fun openDateSettings() {
+        action = Settings.ACTION_DATE_SETTINGS
+    }
+
     // -------------------------------
     // ACTIVITY NAVIGATION
     // -------------------------------
@@ -284,6 +364,30 @@ class KtIntent(
         (context as? Activity)?.finish()
     }
 
+    // testing
+    fun pickFile(
+        type: String = "*/*",
+        multiple: Boolean = false
+    ): KtIntent {
+
+        action = Intent.ACTION_OPEN_DOCUMENT
+        this.type = type
+
+        addCategory(Intent.CATEGORY_OPENABLE)
+        putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple)
+
+        return this
+    }
+
+    private var resultCallback: ((KtActivityResult) -> Unit)? = null
+    fun setOnResultListener(
+        callback: (KtActivityResult) -> Unit
+    ): KtIntent {
+
+        resultCallback = callback
+
+        return this
+    }
     // -------------------------------
     // START
     // -------------------------------
@@ -338,6 +442,28 @@ class KtIntent(
 
     fun stopService(): Boolean {
         return context.stopService(this)
+    }
+    fun startForResult(): KtIntent {
+
+        val activity = context as? Activity
+        ?: throw IllegalStateException(
+            "Activity context required"
+        )
+
+        val callback = resultCallback
+        ?: throw IllegalStateException(
+            "Call setOnResultListener before startForResult"
+        )
+
+        KtActivityResultManager.launch(
+            activity,
+            this
+        ) { result ->
+
+            callback(result)
+        }
+
+        return this
     }
 }
 

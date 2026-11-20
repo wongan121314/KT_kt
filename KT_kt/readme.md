@@ -22,3 +22,8 @@
 # 2.2.1
 * updates
     - fixed ktRowLayout and ktColumnLayout, their parameters where not inline to their ktLinearLayout
+    
+# 2.3.0
+* major changes    
+    - added ktUseState(var/val),  just a simple way of reactivity or use the kotlin way with MutableState()  then use .value and .observe{}
+        - val (name,setName) = useState(value)  then use name.value
