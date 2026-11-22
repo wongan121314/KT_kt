@@ -1,15 +1,13 @@
-# version 
-    * Major
-        - deprecated ktFilePicker  use ktIntent().apply{pickFile()}.setOnResultListener{t->..}
-        - deprecated KtFileManager 
-        
-    * Minor
-        - added tag arguement in most views    
-        - added short names to MATCH_PARENT as FULL AND WRAP_CONENT as AUTO
-        - added View  .gone(),.show(),.hide()    or u can use the aliases  visibility = INVISIBLE/VISIBLE/GONE
-        - made regular methods of 4 args to support 1(all) , 2(x|H,y|V)  ; setpadding/margin,setSize,setcornerradius
-        - (file picker functions moved to KtFileManager file)
-        - added useState<>()
-        - added KtIntent().setOnResultListener{t->...}.startForResult()  //not.start()
-        - added ktNotification(), it supports all the methods even creating all the types using it
-        - added ktNotification().showForeground() use it to start foreground and not .show() to be used inside the service activity for 
+# major 
+- removed the deprecated ktFileManager, no longer supported
+- removed the deprecated ktColor, no longer supported, use android's **Color** classs
+- updated the useState, it combines both useState and useEffect of [reactjs](https://nodejs.org)
+  - useState not outputs a set  not a method [see](docs/files/useState.md) or [home](docs/home.md)
+    ```kotlin
+     val (variable,onMethod) = useState<T>
+    ```
+# minor
+- added a documentation [see](docs/home.md)
+- deprecated the old ktVibrator,  use ktVibration instead.
+- deprecated the ktSelectorm  use getViewByTag/Id, [see](docs/files/ktComponents.md)
+  

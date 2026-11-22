@@ -450,6 +450,7 @@ fun Context.ktUriTOFileName(uri: Uri): String? {
 * --------------------------------------------------
 *
 */
+/*
 class useState<T>(initialValue: T) {
 
     private val listeners = mutableListOf<(T) -> Unit>()
@@ -470,6 +471,42 @@ class useState<T>(initialValue: T) {
         listener(value)
     }
 }
+*/
+
+
+/**useState
+* usage  val (variable,onMethod) = useState<optionalType>(initialValue)
+* use variable.value = value // to change it
+* use onMethos{it}  //will run eachtime the variable value changes
+* ** see the [docs](../docs/files/home.md)
+*/
+class UseState<T>(initial:T){
+
+    private val listeners = mutableListOf<(T)->Unit>()
+
+    var value:T = initial
+    set(newValue){
+        field = newValue
+
+        for(listener in listeners){
+            listener(newValue)
+        }
+    }
+
+    fun onChange(listener:(T)->Unit){
+        listener(value)
+        listeners.add(listener)
+    }
+
+    fun setOnValueChange(listener:(T)->Unit)=onChange(listener)
+    operator fun component1():UseState<T> = this
+    operator fun component2():((T)->Unit)->Unit =::onChange
+}
+
+fun <T> useState(initial:T):UseState<T>{
+    return UseState(initial)
+}
+
 
 fun View.show(): View {
     visibility = View.VISIBLE
