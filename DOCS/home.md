@@ -14,10 +14,12 @@
 - [ktSQL](files/ktSQL.md)
 - [ktCursor](files/ktCursor.md)
 - [ktClipBoard](files/ktClipBoard.md)
+- [ktDebugger](files/useDebugger.md)
   
 #
 - [freezes](files/.freezes.md)
 - [useState](files/useState.md)
+- [useEffect](files/useEffect.md)
 - [ktAliases](files/ktAliases.md)
 
 #

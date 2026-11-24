@@ -22,21 +22,6 @@ open class KtActivity : Activity() {
         // Override this in subclasses.
     }
 
-    // override fun onActivityResult(
-    //     requestCode: Int,
-    //     resultCode: Int,
-    //     data: Intent?
-    // ) {
-    //     super.onActivityResult(requestCode, resultCode, data)
-
-    //     KtFilePickerManager.onActivityResult(
-    //         this,
-    //         requestCode,
-    //         resultCode,
-    //         data
-    //     )
-    // }
-
     override fun onActivityResult(
         requestCode: Int,
         resultCode: Int,

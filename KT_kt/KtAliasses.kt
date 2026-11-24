@@ -69,7 +69,13 @@ const val GONE = View.GONE
 const val MATCH_PARENT = ViewGroup.LayoutParams.MATCH_PARENT
 const val WRAP_CONTENT = ViewGroup.LayoutParams.WRAP_CONTENT
 //alternative
+/**
+ * match the parent
+ */
 const val FULL = ViewGroup.LayoutParams.MATCH_PARENT
+/*
+ * wrap content
+ */
 const val AUTO = ViewGroup.LayoutParams.WRAP_CONTENT
 
 // ==============================
@@ -125,6 +131,32 @@ const val LAYOUT_DIRECTION_LTR = View.LAYOUT_DIRECTION_LTR
 const val LAYOUT_DIRECTION_RTL = View.LAYOUT_DIRECTION_RTL
 const val LAYOUT_DIRECTION_INHERIT = View.LAYOUT_DIRECTION_INHERIT
 const val LAYOUT_DIRECTION_LOCALE = View.LAYOUT_DIRECTION_LOCALE
+
+var View.layWidth: Int
+get() = layoutParams?.width ?: ViewGroup.LayoutParams.WRAP_CONTENT
+set(value) {
+    val params = layoutParams ?: ViewGroup.LayoutParams(
+        ViewGroup.LayoutParams.WRAP_CONTENT,
+        ViewGroup.LayoutParams.WRAP_CONTENT
+    )
+
+    params.width = value
+    layoutParams = params
+    requestLayout()
+}
+
+var View.layHeight: Int
+get() = layoutParams?.height ?: ViewGroup.LayoutParams.WRAP_CONTENT
+set(value) {
+    val params = layoutParams ?: ViewGroup.LayoutParams(
+        ViewGroup.LayoutParams.WRAP_CONTENT,
+        ViewGroup.LayoutParams.WRAP_CONTENT
+    )
+
+    params.height = value
+    layoutParams = params
+    requestLayout()
+}
 
 // ==============================
 // GRID LAYOUT

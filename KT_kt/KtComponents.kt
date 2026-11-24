@@ -449,75 +449,117 @@ fun Context.ktUriTOFileName(uri: Uri): String? {
 *
 * --------------------------------------------------
 *
-*/
-/*
+
 class useState<T>(initialValue: T) {
 
-    private val listeners = mutableListOf<(T) -> Unit>()
+private val listeners = mutableListOf<(T) -> Unit>()
 
-    var value: T = initialValue
-    set(newValue) {
-        if (field == newValue) return
+var value: T = initialValue
+set(newValue) {
+if (field == newValue) return
 
-        field = newValue
+field = newValue
 
-        listeners.toList().forEach {
-            it(newValue)
-        }
-    }
+listeners.toList().forEach {
+it(newValue)
+}
+}
 
-    fun bind(listener: (T) -> Unit) {
-        listeners.add(listener)
-        listener(value)
-    }
+fun bind(listener: (T) -> Unit) {
+listeners.add(listener)
+listener(value)
+}
 }
 */
-
 
 /**useState
 * usage  val (variable,onMethod) = useState<optionalType>(initialValue)
 * use variable.value = value // to change it
 * use onMethos{it}  //will run eachtime the variable value changes
 * ** see the [docs](../docs/files/home.md)
+* use it inside a function
 */
-class UseState<T>(initial:T){
+class UseState<T>(initial:T) {
 
-    private val listeners = mutableListOf<(T)->Unit>()
+    private val listeners = mutableListOf<(T) -> Unit>()
 
     var value:T = initial
-    set(newValue){
+    set(newValue) {
         field = newValue
 
-        for(listener in listeners){
+        for(listener in listeners) {
             listener(newValue)
         }
     }
 
-    fun onChange(listener:(T)->Unit){
+    fun onChange(listener:(T) -> Unit) {
         listener(value)
         listeners.add(listener)
     }
 
-    fun setOnValueChange(listener:(T)->Unit)=onChange(listener)
+    fun setOnValueChange(listener:(T) -> Unit) = onChange(listener)
     operator fun component1():UseState<T> = this
-    operator fun component2():((T)->Unit)->Unit =::onChange
+    operator fun component2():((T) -> Unit) -> Unit = ::onChange
 }
 
-fun <T> useState(initial:T):UseState<T>{
+fun <T> useState(initial:T):UseState<T> {
     return UseState(initial)
 }
 
+/**
+ * Observes changes to a [UseState] object and executes the provided effect
+ * whenever its value changes.
+ *
+ * The effect is also executed immediately with the current state value
+ * when the observer is registered.
+ *
+ * @param state The [UseState] object to observe.
+ * @param effect The callback executed with the current value whenever
+ * the state changes.
+ *
+ * @see UseState
+ */
+fun <T> useEffect(
+    state: UseState<T>,
+    effect: (T) -> Unit
+) {
+    state.onChange(effect)
+}
 
+/**
+ * Makes this view visible.
+ *
+ * Sets the visibility of this view to [View.VISIBLE] and returns
+ * the view instance to allow method chaining.
+ *
+ * @return This view instance.
+ */
 fun View.show(): View {
     visibility = View.VISIBLE
     return this
 }
 
+/**
+ * Hides this view while preserving its space in the layout.
+ *
+ * Sets the visibility of this view to [View.INVISIBLE] and returns
+ * the view instance to allow method chaining.
+ *
+ * @return This view instance.
+ */
 fun View.hide(): View {
     visibility = View.INVISIBLE
     return this
 }
 
+/**
+ * Removes this view from the layout.
+ *
+ * Sets the visibility of this view to [View.GONE], meaning the view
+ * is neither visible nor does it occupy space in the layout.
+ *
+ * @return This view instance.
+ */
 fun View.gone(): View {
     visibility = View.GONE
     return this
@@ -536,15 +578,15 @@ fun View.setPadding(horizontal: Int, vertical: Int): View {
 }
 
 // 4 arguments: left, top, right, bottom
-fun View.setPadding(
-    left: Int,
-    top: Int,
-    right: Int,
-    bottom: Int
-): View {
-    setPadding(left, top, right, bottom)
-    return this
-}
+// fun View.setPadding(
+//     left: Int,
+//     top: Int,
+//     right: Int,
+//     bottom: Int
+// ): View {
+//     setPadding(left, top, right, bottom)
+//     return this
+// }
 
 private fun View.applyMargins(
     left: Int,
@@ -632,4 +674,33 @@ fun View.setPosition(
     bottom: Int
 ): View {
     return applyMargins(left, top, right, bottom)
+}
+
+/**
+ * Closes the current activity.
+ *
+ * Finishes the current activity and removes it from the activity stack.
+ */
+fun Activity.ktAppExit() {
+    finish()
+}
+
+/**
+ * Terminates the application process.
+ *
+ * Immediately kills the current application process.
+ * Use with caution because this does not perform normal activity
+ * lifecycle cleanup.
+ */
+fun Activity.ktAppKill() {
+    Process.killProcess(Process.myPid())
+}
+
+/**
+ * Closes the application.
+ *
+ * Finishes all activities in the current task.
+ */
+fun Activity.ktAppQuit() {
+    finishAffinity()
 }
