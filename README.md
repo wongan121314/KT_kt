@@ -35,12 +35,13 @@ setContentView(
 ```
     - removed ktSelector
 * Minor
-    - fixed the ktLayout, it now to render its children when final size is known, also 0f  means auto wrap, 1f means matchparent,also ktLayout can be of wrap content sizes too
     - added layHeight and layWidth,some elements dont use width, they use layoutParams.width which is now layWidth
     - added useEffect, it can be used when not delegating ,there fore val x = useState() outside the class or as classs property will work ,just use useEffect(x){it}  [see](DOCS/home.md)
     - added ktAppKill(),ktAppQuit() and ktAppExit()\
     - added ktDebugger, it shows an overlay that thos all logcats [see](DOCS/home.md)
 
+* bug fix
+    - fixed the ktLayout, it now to render its children when final size is known, also 0f  means auto wrap, 1f means matchparent,also ktLayout can be of wrap content sizes too
 # issues
 - ~~ktTextView not showing   : resolved, dont use width or height use with P~~
 - ~~ktLayout on scrollView not working, resolved it, by using non zeroing
