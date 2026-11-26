@@ -15,6 +15,9 @@
 - [ktCursor](files/ktCursor.md)
 - [ktClipBoard](files/ktClipBoard.md)
 - [ktDebugger](files/useDebugger.md)
+- [ktTheme](files/KtTheme.md)
+- [ktContraintLayout](files/contraintLayout.md)
+- [ktDynClass and ktDynFunc](files/KtDyn.md)
   
 #
 - [freezes](files/.freezes.md)

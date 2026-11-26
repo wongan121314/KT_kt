@@ -345,31 +345,6 @@ fun Context.ktTextView(
     }
 }
 
-// fun Context.ktTextView(
-//     text: String = "",
-//     size: Float = 14f,
-//     color: Int = Color.BLACK,
-//     bgColor: Int = Color.TRANSPARENT,
-//     width: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
-//     height: Int = ViewGroup.LayoutParams.WRAP_CONTENT,
-//     tag: Any? = null,
-//     block: TextView.() -> Unit = {}
-// ): TextView {
-
-//     return TextView(this).apply {
-//         this.text = text
-//         this.tag = tag
-//         textSize = size
-//         setTextColor(color)
-//         setBackgroundColor(bgColor)
-
-//         // Use the custom KtLayout parameters
-//         layoutParams = KtLayout.Params(width, height)
-
-//         block()
-//     }
-// }
-
 fun Context.ktCheckedTextView(
     text: String = "",
     size: Float = 14f,
@@ -708,7 +683,7 @@ fun Context.ktRadioGroup(
     return RadioGroup  (this).apply(block)
 }
 
-fun Context.KtViewStub(
+fun Context.ktViewStub(
     block: ViewStub.() -> Unit = {}
 ): ViewStub {
     return ViewStub  (this).apply(block)

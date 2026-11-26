@@ -6,6 +6,8 @@ package com.KT_kt
 import android.R
 import android.annotation.SuppressLint
 import android.app.*
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.res.ColorStateList
 import android.content.res.Resources
@@ -27,6 +29,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.*
 import android.widget.ListView
+import java.lang.reflect.Modifier
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import kotlin.reflect.KProperty
@@ -49,6 +52,27 @@ get() = toInt()
 fun String.toUri(): Uri {
     return Uri.parse(this)
 }
+
+object KtContext {
+    lateinit var context: Context
+}
+
+fun Uri.uriToFileName(): String? {
+    KtContext.context.contentResolver.query(
+        this,
+        arrayOf(OpenableColumns.DISPLAY_NAME),
+        null,
+        null,
+        null
+    )?.use { cursor ->
+        if (cursor.moveToFirst()) {
+            val index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            if (index != -1) return cursor.getString(index)
+        }
+    }
+
+    return null
+}
 // -------------------------
 // ADD VIEWS
 // -------------------------
@@ -59,12 +83,12 @@ fun ViewGroup.addViews(vararg views: View) {
 
 //---
 
-// @Deprecated("dont use this")
-// fun ListView.refresh() {
-//     (adapter as? ArrayAdapter<*>)?.notifyDataSetChanged()
-// }
-
 fun ListView.refresh(): ListView {
+    (adapter as? BaseAdapter)?.notifyDataSetChanged()
+    return this
+}
+
+fun Spinner.refresh(): Spinner {
     (adapter as? BaseAdapter)?.notifyDataSetChanged()
     return this
 }
@@ -312,15 +336,23 @@ fun Activity.KtStatusBar(
     }
 }
 
-/**
- * play small Audios 
- */
-fun Context.ktSoundPool(
-    maxStreams: Int = 5
-): SoundPool {
-    return SoundPool.Builder()
-    .setMaxStreams(maxStreams)
-    .build()
+fun Context.ktClipboard(): ClipboardManager {
+    return getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+}
+
+fun ClipboardManager.copy(text: String) {
+    setPrimaryClip(
+        ClipData.newPlainText("text", text)
+    )
+}
+
+fun ClipboardManager.paste(): CharSequence? {
+    return primaryClip?.getItemAt(0)?.text
+}
+
+fun ClipboardManager.clear() {
+    //noinspection NewApi
+    clearPrimaryClip()
 }
 
 private val pool = Executors.newFixedThreadPool(4)
@@ -342,27 +374,6 @@ fun <T> ktThread(
 }
 
 //---
-
-/**
- * View.setId(Int)
- * set a unit id of the view
- * e.g ktButton("hello").setId(100)
- *  - use findViewById<KtButton>(100)  // to find that view
- */
-@Deprecated("use android [id] instead")
-fun <T : View> T.setId(id: Int): T {
-    this.id = id
-    return this
-}
-
-/**
- ktButton("Play").setTag("btn1")
- */
-@Deprecated("use android [tag] instead")
-fun <T : View> T.setTag(name: String): T {
-    tag = name
-    return this
-}
 
 /**
 * val txt = mainLay.getViewByid<TextView>(100)
@@ -390,7 +401,16 @@ inline fun <reified T : View> Activity.getViewByTag(name: String): T? {
 }
 
 /**
- * use any declared view from any scope using id:Int
+ * Use any declared view from any scope using its string ID.
+ */
+inline fun <reified T : View> Activity.getViewById(
+    name: String
+): T? {
+    return findViewById(stringId(name))
+}
+
+/**
+ * Use any declared view from any scope using its integer ID.
  */
 inline fun <reified T : View> Activity.getViewById(
     id: Int
@@ -423,54 +443,79 @@ fun Context.ktUriTOFileName(uri: Uri): String? {
     return null
 }
 
-/**
-* ## useState Usage
-*
-* `useState` provides a simple way to manage mutable state
-* and listen for changes.
-*
-* It supports two ways of accessing state:
-*
-* --------------------------------------------------
-*
-* #### Example:
-*
-* ```
-* val nameState = useState("John")
-* var name by nameState
-*
-* nameState.bind {
-*     println("Name changed: $it")
-* } // auto update the variable
-*
-* name.value = "Mike" // change the variable
-* println(name)
-* ```
-*
-* --------------------------------------------------
-*
+class UseState<T>(initial: T) {
 
-class useState<T>(initialValue: T) {
+    private val listeners = mutableListOf<(T) -> Unit>()
 
-private val listeners = mutableListOf<(T) -> Unit>()
+    private fun notifyListeners() {
+        listeners.toList().forEach { listener ->
+            listener(value)
+        }
+    }
 
-var value: T = initialValue
-set(newValue) {
-if (field == newValue) return
+    private fun observe(value: T): T {
+        return when (value) {
+            is MutableList<*> -> {
+                ObservableList(value, ::notifyListeners) as T
+            }
+            else -> value
+        }
+    }
 
-field = newValue
+    var value: T = observe(initial)
+    set(newValue) {
+        field = observe(newValue)
+        notifyListeners()
+    }
 
-listeners.toList().forEach {
-it(newValue)
+    fun onChange(listener: (T) -> Unit) {
+        listener(value)
+        listeners.add(listener)
+    }
+
+    fun setOnValueChange(listener: (T) -> Unit) = onChange(listener)
+
+    operator fun component1(): UseState<T> = this
+
+    operator fun component2(): ((T) -> Unit) -> Unit = ::onChange
+
+    private class ObservableList<T>(
+        source: MutableList<T>,
+        private val onChanged: () -> Unit
+    ) : AbstractMutableList<T>() {
+
+        private val items = source.toMutableList()
+
+        override val size: Int
+        get() = items.size
+
+        override fun get(index: Int): T = items[index]
+
+        override fun add(index: Int, element: T) {
+            items.add(index, element)
+            onChanged()
+        }
+
+        override fun set(index: Int, element: T): T {
+            val old = items.set(index, element)
+            onChanged()
+            return old
+        }
+
+        override fun removeAt(index: Int): T {
+            val removed = items.removeAt(index)
+            onChanged()
+            return removed
+        }
+
+        override fun clear() {
+            if (items.isNotEmpty()) {
+                items.clear()
+                onChanged()
+            }
+        }
+    }
 }
-}
-
-fun bind(listener: (T) -> Unit) {
-listeners.add(listener)
-listener(value)
-}
-}
-*/
 
 /**useState
 * usage  val (variable,onMethod) = useState<optionalType>(initialValue)
@@ -479,30 +524,7 @@ listener(value)
 * ** see the [docs](../docs/files/home.md)
 * use it inside a function
 */
-class UseState<T>(initial:T) {
-
-    private val listeners = mutableListOf<(T) -> Unit>()
-
-    var value:T = initial
-    set(newValue) {
-        field = newValue
-
-        for(listener in listeners) {
-            listener(newValue)
-        }
-    }
-
-    fun onChange(listener:(T) -> Unit) {
-        listener(value)
-        listeners.add(listener)
-    }
-
-    fun setOnValueChange(listener:(T) -> Unit) = onChange(listener)
-    operator fun component1():UseState<T> = this
-    operator fun component2():((T) -> Unit) -> Unit = ::onChange
-}
-
-fun <T> useState(initial:T):UseState<T> {
+fun <T> useState(initial: T): UseState<T> {
     return UseState(initial)
 }
 
@@ -576,17 +598,6 @@ fun View.setPadding(horizontal: Int, vertical: Int): View {
     setPadding(horizontal, vertical, horizontal, vertical)
     return this
 }
-
-// 4 arguments: left, top, right, bottom
-// fun View.setPadding(
-//     left: Int,
-//     top: Int,
-//     right: Int,
-//     bottom: Int
-// ): View {
-//     setPadding(left, top, right, bottom)
-//     return this
-// }
 
 private fun View.applyMargins(
     left: Int,
@@ -703,4 +714,198 @@ fun Activity.ktAppKill() {
  */
 fun Activity.ktAppQuit() {
     finishAffinity()
+}
+
+private val stringIds = mutableMapOf<String, Int>()
+
+/**
+ * ```kotlin
+        ktTextView() {
+            id = stringId("btn1")
+        }
+        ktTextView() {
+            id = stringId("btn2")
+        }
+
+        //---
+        val btn1 = getViewById("btn1")
+ */
+fun stringId(name: String): Int {
+    return stringIds.getOrPut(name) {
+        View.generateViewId()
+    }
+}
+
+//--
+
+/**  call a class dynamically
+val person = dynClass("com.example.Person")()
+
+person["greet"]("Wongan")
+
+val age = person["age"]()
+
+println(age)
+
+---
+
+val x = dynClass("com.example.MyUtils")
+
+x["hello"]()
+
+val result = x["add"](10, 20)
+
+println(result)
+
+*
+* ---
+package com.example
+
+class Person {
+
+fun greet(name: String) {
+println("Hello $name")
+}
+
+fun age(): Int {
+return 25
+}
+}
+*/
+fun ktDynClass(className: String) = DynClass(
+    Class.forName(className)
+)
+
+// Represents a dynamically discovered class
+class DynClass internal constructor(
+    private val clazz: Class<*>
+) {
+
+    // x["hello"]
+    operator fun get(methodName: String): DynMethod {
+        return DynMethod(clazz, null, methodName)
+    }
+
+    // x()
+    // Creates an instance of the class
+    operator fun invoke(vararg args: Any?): DynObject {
+        val constructor = clazz.constructors.firstOrNull {
+            it.parameterTypes.matchesArgs(args)
+        } ?: error("No matching constructor found in ${clazz.name}")
+
+        return DynObject(constructor.newInstance(*args))
+    }
+}
+
+// Represents a dynamically discovered object
+class DynObject internal constructor(
+    private val instance: Any
+) {
+
+    // person["hello"]
+    operator fun get(methodName: String): DynMethod {
+        return DynMethod(instance.javaClass, instance, methodName)
+    }
+}
+
+// Represents a dynamically discovered method
+class DynMethod internal constructor(
+    private val clazz: Class<*>,
+    private val target: Any?,
+    private val methodName: String
+) {
+
+    // x["hello"]()
+    // x["add"](10, 20)
+    operator fun invoke(vararg args: Any?): Any? {
+
+        val method = clazz.methods.firstOrNull {
+            it.name == methodName &&
+            it.parameterTypes.matchesArgs(args)
+        } ?: error("Method '$methodName' not found in ${clazz.name}")
+
+        if (!Modifier.isStatic(method.modifiers) && target == null) {
+            error("Method '$methodName' requires an object instance")
+        }
+
+        return method.invoke(target, *args)
+    }
+}
+
+// Checks whether argument types match method parameter types
+private fun Array<Class<*>>.matchesArgs(args: Array<out Any?>): Boolean {
+
+    if (size != args.size) return false
+
+    return indices.all { index ->
+        val parameter = this[index].boxed()
+        val argument = args[index]
+
+        argument == null || parameter.isAssignableFrom(argument.javaClass)
+    }
+}
+
+// Converts primitive types into their wrapper classes
+private fun Class<*>.boxed(): Class<*> = when (this) {
+    Int::class.javaPrimitiveType -> java.lang.Integer::class.java
+    Boolean::class.javaPrimitiveType -> java.lang.Boolean::class.java
+    Long::class.javaPrimitiveType -> java.lang.Long::class.java
+    Double::class.javaPrimitiveType -> java.lang.Double::class.java
+    Float::class.javaPrimitiveType -> java.lang.Float::class.java
+    Short::class.javaPrimitiveType -> java.lang.Short::class.java
+    Byte::class.javaPrimitiveType -> java.lang.Byte::class.java
+    Char::class.javaPrimitiveType -> java.lang.Character::class.java
+    else -> this
+}
+
+/**
+val add = dynFunc("com.example.UtilsKt", "add")
+
+val result = add(10, 20)
+*/
+fun ktDynFunc(
+    className: String,
+    functionName: String
+): DynFunction {
+
+    val clazz = Class.forName(className)
+
+    return DynFunction(clazz, functionName)
+}
+
+class DynFunction internal constructor(
+    private val clazz: Class<*>,
+    private val functionName: String
+) {
+
+    operator fun invoke(vararg args: Any?): Any? {
+
+        val method = clazz.methods.firstOrNull {
+            it.name == functionName &&
+            it.parameterTypes.matchesArgs(args)
+        } ?: error("Function '$functionName' not found")
+
+        return method.invoke(null, *args)
+    }
+}
+
+//---
+fun <T> Spinner.setItems(items: List<T>) {
+    adapter = context.ktAdapter(items) {
+        getView { item, position ->
+            context.ktTextView(
+                text = item.toString(),
+                color = Color.BLACK,
+                width = MATCH_PARENT
+            )
+        }
+
+        getDropDownView { item, position ->
+            context.ktTextView(
+                text = item.toString(),
+                color = Color.BLACK,
+                width = MATCH_PARENT
+            )
+        }
+    }
 }
